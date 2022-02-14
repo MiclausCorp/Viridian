@@ -1,0 +1,39 @@
+{
+  "name": "viridian",
+  "version": "1.0.0",
+  "description": "A multipurpose library to aid web JS/TS development",
+  "main": "Release/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MiclausCorp/Viridian.git"
+  },
+  "keywords": [
+    "JavaScript",
+    "TypeScript",
+    "Web",
+    "Framework",
+    "Frontend",
+    "DOM",
+    "VirtualDOM",
+    "Regex",
+    "Template",
+    "Engine"
+  ],
+  "author": "Miclaus Industries Corporation B.V. Advanced Software Technologies Research Group.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MiclausCorp/Viridian/issues"
+  },
+  "homepage": "https://github.com/MiclausCorp/Viridian#readme",
+  "dependencies": {
+    "typescript": "^4.5.5"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
+    "eslint": "^8.9.0"
+  }
+}
