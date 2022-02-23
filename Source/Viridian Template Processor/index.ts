@@ -23,10 +23,12 @@
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE 
 //  OR OTHER DEALINGS IN THE SOFTWARE.
 
-const element = (tagName: string) => (strings: TemplateStringsArray, ...args: Array<string>) => ({
-	type: tagName,
-	template: strings.reduce(
-		(acc, currentString, index) => acc + currentString + (args[index] || ""),
-		""
-	)
-});
+export function html(tagName: string): (strings: TemplateStringsArray, ...args: Array<string>) => { type: string; template: string; } {
+	return (strings: TemplateStringsArray, ...args: Array<string>) => ({
+		type: tagName,
+		template: strings.reduce(
+			(acc, currentString, index) => acc + currentString + (args[index] || ""),
+			""
+		)
+	});
+}
