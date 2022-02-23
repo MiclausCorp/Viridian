@@ -25,10 +25,7 @@
 //
 
 /* Include Directive */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as ViridianTemplateProcessor from "./Viridian Template Processor/index"; // Viridian Template Processor engine
-
-/* eslint-enable @typescript-eslint/no-unused-vars */
 
 /**
  * Display a template in the DOM.
