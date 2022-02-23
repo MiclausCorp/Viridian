@@ -27,3 +27,6 @@ Temporary Items
 
 # Node Package Manager
 node_modules
+
+# Viridian
+Release/
