@@ -35,7 +35,30 @@ module.exports = {
         foo: "foo.js",
         bar: "bar.js"
     }*/
-	entry: "./Release/index.js",
+	entry: "./Source/index.ts",
+
+	// Viridian Module Configuration
+	module: {
+		// Module Rules
+		rules: [
+			{
+				// Test
+				test: /\.tsx?$/,
+				
+				// Use TS-Loader
+				use: "ts-loader",
+				
+				// Exclude `node_modules`
+				exclude: /node_modules/,
+			},
+		],
+	},
+
+	// File Resolver
+	resolve: {
+		// compile files containing .tsx, .ts or .js
+		extensions: [".tsx", ".ts", ".js"],
+	},
 
 	// The name of the file we want to 'compile' our compiled .js file to.
 	output: {
