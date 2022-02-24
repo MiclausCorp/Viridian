@@ -27,7 +27,7 @@ export function html(tagName: string): (strings: TemplateStringsArray, ...args: 
 	return (strings: TemplateStringsArray, ...args: Array<string>) => ({
 		type: tagName,
 		template: strings.reduce(
-			(acc, currentString, index) => acc + currentString + (args[index] || ""),
+			(acc, currentString, index): string => acc + currentString + (args[index] || ""),
 			""
 		)
 	});
