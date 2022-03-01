@@ -1,6 +1,6 @@
 //
-//  index.ts
-//  Core file for the Viridian Project
+//  Viridian VirtualDOM Engine/index.ts
+//  Main implementation for the Viridian VirtualDOM reconciliation engine
 //
 //  Created by Darius Miclaus (mdarius13)
 //
@@ -22,32 +22,23 @@
 //  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE 
 //  OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
-/* Include Directive */
-import * as ViridianTemplateProcessor from "./Viridian Template Processor/index"; // Viridian Template Processor engine
-//import * as snabbdom from "snabbdom";
-//import * as ViridianVDOMEngine from "./Viridian VirtualDOM Engine/index";
+import { h, VNode } from "snabbdom";
 
-// const patch = snabbdom.init([]);
-
-/**
- * Display a template in the DOM.
- * 
- * @param selector The first `Element` within the document that matches the specified selector, which will receive the HTML component (eg. `div`).
- * @param component The HTML templated element to give to the `selector` (eg. `div'Hello ${user.name}`).
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function init({ selector, component }: { selector: string; component: any; }): void {
-	// Get the object using the document selector
-	const app = document.querySelector(selector);
-
-	// Tell snabbdom to handle the component
-	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-	//patch(app!, component.template);
+const initialState = {
+	template: ""
+};
+  
+export function vhtml(tagName: string): (strings: TemplateStringsArray, ...args: Array<string>) => { type: string; template: VNode; } {
+	return (strings: TemplateStringsArray, ...args: Array<string>) => ({
+		type: "element",
+		template: h(
+			tagName,
+			{},
+			strings.reduce(
+				(acc, currentString, index): string => acc + currentString + (args[index] || ""),
+				""
+			)
+		)
+	});
 }
-
-/* Module Exports */
-exports.html = ViridianTemplateProcessor.html;
-exports.init = init;
-//exports.vhtml = ViridianVDOMEngine.vhtml;
