@@ -24,18 +24,43 @@
 //  OR
 //
 
-import { h, VNode } from "snabbdom";
+/* Include Directive */
+import { h } from "snabbdom";
 
-export function html(tagName: string): (strings: TemplateStringsArray, ...args: Array<string>) => { type: string; template: VNode; } {
-	return (strings: TemplateStringsArray, ...args: Array<string>) => ({
-		type: "element",
-		template: h(
-			tagName,
-			{},
-			strings.reduce(
-				(acc, currentString, index): string => acc + currentString + (args[index] || ""),
-				""
-			)
-		)
-	});
+/**
+ * State Types
+ */
+const State = {
+	template: "",
+};
+
+/**
+ * Get raw content from template string.
+ * @param args Input Arguments
+ * @returns Template content
+ */
+const reduce = (args: Array<string>) => (acc: typeof State, currentString: string, index: number) => ({
+	...acc,
+	template: acc.template + currentString + (args[index] || "")
+});
+
+/**
+ * Generate an HTML element from a template.
+ * @param tagName Tag Name
+ * @returns Virtual DOM Element
+ */
+export function html(tagName: string) {
+	return (strings: TemplateStringsArray, ...args: Array<string>) => {
+		// Get raw template content
+		const { template } = strings.reduce(reduce(args), State);
+
+		// Build HTML element
+		return {
+			type: "element",
+			template: h(
+				tagName,
+				{},
+				template)
+		};
+	};
 }
