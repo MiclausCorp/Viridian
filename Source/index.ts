@@ -25,11 +25,11 @@
 //
 
 /* Include Directive */
-import * as ViridianTemplateProcessor from "./Viridian Template Processor/index"; // Viridian Template Processor engine
-//import * as snabbdom from "snabbdom";
-//import * as ViridianVDOMEngine from "./Viridian VirtualDOM Engine/index";
+import * as ViridianDOM from "./Viridian Web Engine"; // Viridian Template Processor & Reconciliation Engine
+import * as snabbdom from "snabbdom";				  // Snabbdom Virtual DOM handling library
 
-// const patch = snabbdom.init([]);
+// Initialize snabbdom
+const patch = snabbdom.init([]);
 
 /**
  * Display a template in the DOM.
@@ -40,14 +40,12 @@ import * as ViridianTemplateProcessor from "./Viridian Template Processor/index"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function init({ selector, component }: { selector: string; component: any; }): void {
 	// Get the object using the document selector
-	const app = document.querySelector(selector);
+	const app = document.querySelector(selector) as Element;
 
 	// Tell snabbdom to handle the component
-	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-	//patch(app!, component.template);
+	patch(app, component.template);
 }
 
 /* Module Exports */
-exports.html = ViridianTemplateProcessor.html;
+exports.html = ViridianDOM.html;
 exports.init = init;
-//exports.vhtml = ViridianVDOMEngine.vhtml;

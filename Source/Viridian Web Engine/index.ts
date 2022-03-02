@@ -1,6 +1,6 @@
 //
-//  Viridian VirtualDOM Engine/index.ts
-//  Main implementation for the Viridian VirtualDOM reconciliation engine
+//  Viridian Web Engine/index.ts
+//  Main implementation for the Viridian Templating Processor and Reconciliation Engine.
 //
 //  Created by Darius Miclaus (mdarius13)
 //
@@ -21,15 +21,12 @@
 //  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
 //  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE 
-//  OR OTHER DEALINGS IN THE SOFTWARE.
+//  OR
+//
 
 import { h, VNode } from "snabbdom";
 
-const initialState = {
-	template: ""
-};
-  
-export function vhtml(tagName: string): (strings: TemplateStringsArray, ...args: Array<string>) => { type: string; template: VNode; } {
+export function html(tagName: string): (strings: TemplateStringsArray, ...args: Array<string>) => { type: string; template: VNode; } {
 	return (strings: TemplateStringsArray, ...args: Array<string>) => ({
 		type: "element",
 		template: h(
