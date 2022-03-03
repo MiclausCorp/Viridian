@@ -1,6 +1,6 @@
 //
-//  index.ts
-//  Core file for the Viridian Project
+//  ViridianDOM/Emmiter.ts
+//  Viridian DOM Element generator
 //
 //  Created by Darius Miclaus (mdarius13)
 //
@@ -25,29 +25,43 @@
 //
 
 /* Include Directive */
-import { ViridianDOM } from "./ViridianDOM";
+import { VRElement } from "./VRElement"; // Viridian DOM Element
 
 /**
- * Display a component in the DOM.
- * 
- * @param selector The first `Element` within the document that matches the specified selector, which will receive the HTML component (eg. `div`).
- * @param component The Viridian element to give to the `selector` (eg. `'Hello ${user.name}`).
+ * Create and return a new Viridian element of the given type
+ * @param type a `string` that specifies the type of the DOM node we want to create, it’s the `tagName` you pass to `document.createElement(_)` when you want to create an HTML element.
+ * @param props The keys and values from the JSX attributes. It also contains the property: `children`.
+ * @param children Element Content
+ * @returns Viridian element of the given type
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function init({ selector, type, component }: { selector: string; type?: string; component: string; }): void {
-	// Get the object using the document selector
-	const app = document.querySelector(selector);
-
-	// Create the component.
-	// If we got a custom type (eg. "h1"), use that. otherwise use a `div`.
-	const element = ViridianDOM.createElement(type || "div", null, component);
-
-	// Render the component
-	ViridianDOM.render(element, app);
-
+export function createElement(type: string, props: any, ...children: Array<string>): VRElement {
+	return {
+		type,
+		props: {
+			...props,
+			children: children.map(child =>
+				/* The children array could contain primitive values like strings or numbers. */
+				/* We’ll wrap everything that isn’t an object inside its own element and create a special type for them: `TEXT`. */
+				typeof child === "object"
+					? child
+					: createTextElement(child)
+			),
+		},
+	};
 }
+/**
+ * Wrap primitive values in a text element
+ * @param Input object
+ * @returns Viridian Text element
+ */
 
-/* Module Exports */
-exports.createElement = ViridianDOM.createElement;
-exports.render = ViridianDOM.render;
-exports.init = init;
+export function createTextElement(text: string): VRElement {
+	return {
+		type: "_",
+		props: {
+			nodeValue: text,
+			children: [],
+		},
+	};
+}

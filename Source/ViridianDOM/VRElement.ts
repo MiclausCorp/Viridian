@@ -1,6 +1,6 @@
 //
-//  Viridian Web Engine/index.ts
-//  Main implementation for the Viridian Templating Processor and Reconciliation Engine.
+//  ViridianDOM/VRElement.ts
+//  Viridian DOM Element type
 //
 //  Created by Darius Miclaus (mdarius13)
 //
@@ -24,14 +24,19 @@
 //  OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-/* Include Directive */
-import { createElement } from "./Emitter"; // Viridian DOM Element Generator
-import { render } from "./Render";         // Viridian DOM Renderer
-
 /**
- * Viridian DOM Engine
+ * Viridian Element type
  */
-export const ViridianDOM = {
-	createElement,
-	render,
+export type VRElement = {
+    // Element type
+    type: string;
+
+    // Element Props
+    props: {
+        // HTML DOM node value
+        nodeValue: string;
+
+        // Children elements
+        children: Array<VRElement>;
+    };
 };

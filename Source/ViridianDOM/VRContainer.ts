@@ -1,6 +1,6 @@
 //
-//  Viridian Web Engine/index.ts
-//  Main implementation for the Viridian Templating Processor and Reconciliation Engine.
+//  ViridianDOM/VRContainer.ts
+//  Viridian DOM Container type
 //
 //  Created by Darius Miclaus (mdarius13)
 //
@@ -24,14 +24,7 @@
 //  OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-/* Include Directive */
-import { createElement } from "./Emitter"; // Viridian DOM Element Generator
-import { render } from "./Render";         // Viridian DOM Renderer
-
 /**
- * Viridian DOM Engine
+ * Viridian DOM Container type
  */
-export const ViridianDOM = {
-	createElement,
-	render,
-};
+export type VRContainer = HTMLElement | Text | Element | null;

@@ -1,6 +1,6 @@
 //
-//  Viridian Web Engine/index.ts
-//  Main implementation for the Viridian Templating Processor and Reconciliation Engine.
+//  ViridianDOM/Renderer.ts
+//  Viridian DOM renderer
 //
 //  Created by Darius Miclaus (mdarius13)
 //
@@ -25,13 +25,40 @@
 //
 
 /* Include Directive */
-import { createElement } from "./Emitter"; // Viridian DOM Element Generator
-import { render } from "./Render";         // Viridian DOM Renderer
+import { VRContainer } from "./VRContainer"; // Viridian DOM Container Type
+import { VRElement } from "./VRElement";     // Viridian DOM Element Type
 
 /**
- * Viridian DOM Engine
+ * Render a Viridian Element in a DOM Container
+ * @param element Viridian Element
+ * @param container DOM Container
  */
-export const ViridianDOM = {
-	createElement,
-	render,
-};
+export function render(element: VRElement, container: VRContainer): void {
+	// Unwrap the container
+	if (container !== null) {
+		// Create HTML element
+		// If the element type is `_` we create a text node instead of a regular node.
+		const dom = element.type === "_" 
+			? document.createTextNode("")
+			: document.createElement(element.type);
+
+		// Assign the element props to the node.
+		const isProperty = (key: string) => key !== "children";
+		Object.keys(element.props)
+			.filter(isProperty)
+			.forEach(name => {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				/* @ts-ignore */
+				dom[name] = element.props[name];
+			});
+
+
+		// Render each child element recursively
+		element.props.children.forEach((child: VRElement): void =>
+			render(child, dom)
+		);
+
+		// Append them to the DOM.
+		container.appendChild(dom);
+	}
+}
