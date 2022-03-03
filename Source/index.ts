@@ -25,27 +25,28 @@
 //
 
 /* Include Directive */
-import * as ViridianDOM from "./Viridian Web Engine"; // Viridian Template Processor & Reconciliation Engine
-import * as snabbdom from "snabbdom";				  // Snabbdom Virtual DOM handling library
-
-// Initialize snabbdom
-const patch = snabbdom.init([]);
+import * as ViridianDOM from "./ViridianDOM"; // Viridian Template Processor & Reconciliation Engine
 
 /**
- * Display a template in the DOM.
+ * Display a component in the DOM.
  * 
  * @param selector The first `Element` within the document that matches the specified selector, which will receive the HTML component (eg. `div`).
- * @param component The HTML templated element to give to the `selector` (eg. `div'Hello ${user.name}`).
+ * @param component The Viridian element to give to the `selector` (eg. `'Hello ${user.name}`).
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function init({ selector, component }: { selector: string; component: any; }): void {
+export function init({ selector, type, component }: { selector: string; type?: string; component: string; }): void {
 	// Get the object using the document selector
-	const app = document.querySelector(selector) as Element;
+	const app = document.querySelector(selector);
 
-	// Tell snabbdom to handle the component
-	patch(app, component.template);
+	// Create the component.
+	// If we got a custom type (eg. "h1"), use that. otherwise use a `div`.
+	const element = ViridianDOM.createElement(type || "div", null, component);
+
+	// Render the component
+	ViridianDOM.render(element, app);
 }
 
 /* Module Exports */
-exports.html = ViridianDOM.html;
+exports.createElement = ViridianDOM.createElement;
+exports.render = ViridianDOM.render;
 exports.init = init;
