@@ -1,6 +1,6 @@
-# Viridian Web Engine
+# ViridianDOM
 
-Here's where the source code for the Viridian Templating Processor and Reconciliation Engine can be found.
+Here's where the source code for the Viridian DOM Templating Processor and Reconciliation Engine can be found.
 
 ## What's a **template**?
 Templates are a way of binding interactive data to HTML objects.
