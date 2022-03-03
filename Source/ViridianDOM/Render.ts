@@ -62,3 +62,22 @@ export function render(element: VRElement, container: VRContainer): void {
 		container.appendChild(dom);
 	}
 }
+
+let nextUnitOfWork: unknown = null;
+
+function workLoop(deadline: IdleDeadline) {
+	let shouldYield = false;
+	while (nextUnitOfWork && !shouldYield) {
+		nextUnitOfWork = performUnitOfWork(
+			nextUnitOfWork
+		);
+		shouldYield = deadline.timeRemaining() < 1;
+	}
+	requestIdleCallback(workLoop);
+}
+
+requestIdleCallback(workLoop);
+
+function performUnitOfWork(nextUnitOfWork: unknown) {
+	// TODO
+}
