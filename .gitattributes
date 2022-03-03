@@ -1,0 +1,5 @@
+# .gitattributes file for Viridian
+# Copyright (c) Miclaus Industries Corporation B.V.
+
+# Auto detect text files and perform LF normalization
+* text=auto
