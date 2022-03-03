@@ -1,14 +1,10 @@
 # .gitignore file for Viridian
 # Trademark and Copyright (c) 2022 Miclaus Industries Corporation B.V.
 
-# General
+##### macOS #####
 .DS_Store
 .AppleDouble
 .LSOverride
-
-# Thumbnails
-Thumbs.db
-._*
 
 # Files that might appear in the root of a volume
 .DocumentRevisions-V100
@@ -26,8 +22,43 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+##### Windows #####
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Thumbnails
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+._*
+
+##### Linux #####
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+##### Viridian #####
+Release/
+coverage
+.env 
+
 # Node Package Manager
 node_modules
 
-# Viridian
-Release/
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# TypeScript cache
+*.tsbuildinfo
