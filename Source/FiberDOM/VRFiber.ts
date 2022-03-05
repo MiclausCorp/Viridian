@@ -61,6 +61,10 @@ export type VRFiber = {
 
     // A link to the old fiber, that was committed to the DOM in the previous commit phase.
     alternate?: VRFiber | null | undefined;
+
+    // Interactivity Hooks
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    hooks?: any[]
 };
 
 /**
