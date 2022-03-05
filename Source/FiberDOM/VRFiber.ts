@@ -32,7 +32,8 @@ import { VRContainer } from "./VRContainer"; // Viridian DOM Container
  */
 export type VRFiber = {
     // HTML Element type
-    type?: string | null | undefined,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    type?: string | Function | null | undefined,
 
     // Fiber Props
 	props: {
