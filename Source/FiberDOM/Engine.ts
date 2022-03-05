@@ -89,14 +89,15 @@ function performUnitOfWork(fiber: VRFiber): VRFiber {
  	 * have finished performing all the work for this render.
  	 */
 
-	// First, we create a new node and append it to the DOM.
-	if (!fiber.dom) {
-		fiber.dom = createFiberTree(fiber);
+	// Check if the fiber type is a `Function`, 
+	// Depending on that we go to a different update function.
+	if (fiber.type instanceof Function) {
+		// Function Fiber
+		updateFunctionComponent(fiber);
+	} else {
+		// Regular Fiber
+		updateHostComponent(fiber);
 	}
-
-	// Then for each child we create a new fiber.
-	const elements = fiber.props.children;
-	reconcileChildren(fiber, elements);
 
 	// If it has a child fiber
 	if (fiber.child) {
@@ -121,6 +122,39 @@ function performUnitOfWork(fiber: VRFiber): VRFiber {
 
 	// Outermost return
 	return nextFiber;
+}
+
+/**
+ * Update Host Fiber Component
+ * @param fiber Input Fiber
+ */
+function updateHostComponent(fiber: VRFiber) {
+	// First, we create a new node and append it to the DOM.
+	if (!fiber.dom) {
+		fiber.dom = createFiberTree(fiber);
+	}
+
+	// Then for each child we create a new fiber.
+	const elements = fiber.props.children;
+	reconcileChildren(fiber, elements);
+}
+
+/**
+ * Update Fiber Function component
+ * @param fiber Input Fiber
+ */
+function updateFunctionComponent(fiber: VRFiber) {
+	// Run the function to get the children.
+
+	// We're 100% guaranteed to have a function type if we're here.
+	// We'll just disable TS safety here to save the 32 bytes needed for an extra `if` check.
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-ignore
+	const children = [fiber.type(fiber.props)];
+
+	// Then, once we have the children, the reconciliation works in the same way.
+	// We don’t need to change anything there.
+	reconcileChildren(fiber, children);
 }
 
 /**
@@ -309,7 +343,7 @@ export function createFiberTree(fiber: VRFiber): VRContainer {
 	// If the element type is `_` we create a text fiber instead of a regular fiber.
 	const dom = fiber.type === VRFiberType.textElement 
 		? document.createTextNode("")
-		: document.createElement(fiber.type ? fiber.type : "div");
+		: document.createElement(fiber.type as unknown as VRFiberType);
 
 	// Assign the element props to the node.
 	updateDom(dom, {children: []}, fiber.props);
@@ -328,7 +362,15 @@ function commitWork(fiber: OptionalVRFiber): void {
 	}
 
 	// Get the DOM Parent
-	const domParent = fiber.parent?.dom;
+	// To find the parent of a DOM node we’ll need to go up the fiber tree until we find a fiber with a DOM node.
+	// Because the Fiber from a function component doesn’t have a DOM node.
+	let domParentFiber = fiber.parent;
+	while (!domParentFiber?.dom) {
+		domParentFiber = domParentFiber?.parent;
+	}
+
+	// We've found the dom parent
+	const domParent = domParentFiber.dom;
 
 	/* Fiber Effects */
 	// If the fiber has a "PLACE" tag we need to append the DOM node to the node from the parent fiber.
@@ -340,6 +382,8 @@ function commitWork(fiber: OptionalVRFiber): void {
 	} else if (fiber.effectTag === VRFiberEffectTag.delete && fiber.dom != null) {
 		if (domParent) { 
 			// Remove the fiber
+			// When removing a node we also need to keep going until we find a child with a DOM node.
+			// due to the posibility of Function components.
 			commitDeletion(domParent, fiber); 
 		}
 
