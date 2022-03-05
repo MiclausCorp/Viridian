@@ -31,10 +31,10 @@ import { OptionalVRFiber, VRFiber, VRFiberType, VRFiberEffectTag } from "./VRFib
 
 
 /* Runtime Data */
-let nextUnitOfWork:     OptionalVRFiber       = null; // Upcoming Fiber
-let workInProgressRoot: OptionalVRFiber       = null; // WIP Fiber Tree Root
-let currentRoot:        OptionalVRFiber 	  = null; // Current Fiber Tree root
-let deletions:  	 	VRFiber[] | null      = null; // Fibers to be deleted
+let nextUnitOfWork:     OptionalVRFiber  = null; // Upcoming Fiber
+let workInProgressRoot: OptionalVRFiber  = null; // WIP Fiber Tree Root
+let currentRoot:        OptionalVRFiber  = null; // Current Fiber Tree root
+let deletions:          VRFiber[] | null = null; // Fibers to be deleted
 
 /* Implementation */
 // Set Idle Callback on `workLoop(_)`
