@@ -56,7 +56,7 @@ export function createElement(type: string, props: any, ...children: Array<strin
  * @param text Input object
  * @returns Viridian Text element
  */
-export function createTextElement(text: string): VRFiber {
+function createTextElement(text: string): VRFiber {
 	return {
 		type: VRFiberType.textElement,
 		props: {
