@@ -1,5 +1,5 @@
 //
-//  ViridianDOM/VRContainer.ts
+//  FiberDOM/VRContainer.ts
 //  Viridian DOM Container type
 //
 //  Created by Darius Miclaus (mdarius13)
