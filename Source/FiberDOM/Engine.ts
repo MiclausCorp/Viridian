@@ -30,11 +30,31 @@ import { isEvent, isGone, isNew, isProperty } from "./Keys";                    
 import { OptionalVRFiber, VRFiber, VRFiberType, VRFiberEffectTag } from "./VRFiber"; // Viridian FiberDOM VRFiber
 
 
-/* Runtime Data */
-let nextUnitOfWork:     OptionalVRFiber  = null; // Upcoming Fiber
-let workInProgressRoot: OptionalVRFiber  = null; // WIP Fiber Tree Root
-let currentRoot:        OptionalVRFiber  = null; // Current Fiber Tree root
-let deletions:          VRFiber[] | null = null; // Fibers to be deleted
+/**
+ * FiberDOM Engine State at runtime
+ */
+interface FiberDOMState {
+	/** Upcoming Fiber */
+	nextUnitOfWork: OptionalVRFiber;
+
+	/** Work-in-progress Fiber Tree root */
+	workInProgressRoot: OptionalVRFiber;
+
+	/** Work-in-progress */
+	workInProgressFiber: OptionalVRFiber;
+
+	/** Current Fiber Tree Root */
+	currentRoot: OptionalVRFiber;
+
+	/** Fibers to be deleted */
+	deletions: VRFiber[] | null;
+
+	/** Hook index */
+	hookIndex: number | null;
+}
+
+/** FiberDOM Engine Global State */
+export const engineState = {} as FiberDOMState;
 
 /* Implementation */
 // Set Idle Callback on `workLoop(_)`
@@ -49,10 +69,10 @@ function workLoop(deadline: IdleDeadline): void {
 	let shouldYield = false;
 
 	// While we have to work on a fiber and we shouldn't yield
-	while (nextUnitOfWork && !shouldYield) {
+	while (engineState.nextUnitOfWork && !shouldYield) {
 		// Perform the work
-		nextUnitOfWork = performUnitOfWork(
-			nextUnitOfWork
+		engineState.nextUnitOfWork = performUnitOfWork(
+			engineState.nextUnitOfWork
 		);
 
 		// Set should yield if Deadline is less than 1
@@ -62,7 +82,7 @@ function workLoop(deadline: IdleDeadline): void {
 	// Once we finish all the work 
 	// (we know it because there isn’t a next unit of work) 
 	// we commit the whole fiber tree to the DOM.
-	if (!nextUnitOfWork && workInProgressRoot) {
+	if (!engineState.nextUnitOfWork && engineState.workInProgressRoot) {
 		// Commit the tree root to the DOM
 		commitRoot();
 	}
@@ -144,9 +164,13 @@ function updateHostComponent(fiber: VRFiber) {
  * @param fiber Input Fiber
  */
 function updateFunctionComponent(fiber: VRFiber) {
-	// Run the function to get the children.
+	// Set global data
+	engineState.workInProgressFiber = fiber;    // Work in progress fiber 
+	engineState.hookIndex = 0;                  // Keep track of the current hook index.
+	engineState.workInProgressFiber.hooks = []; // Fiber attached Hooks
 
-	// We're 100% guaranteed to have a function type if we're here.
+	// Run the function to get the children.
+	// Notice: We're 100% guaranteed to have a function type if we're here.
 	// We'll just disable TS safety here to save the 32 bytes needed for an extra `if` check.
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore
@@ -217,7 +241,7 @@ function reconcileChildren(workInProgressFiber: VRFiber, elements: Array<VRFiber
 			previousFiber.effectTag = VRFiberEffectTag.delete;
 
 			// Push it to deletions.
-			deletions?.push(previousFiber);
+			engineState.deletions?.push(previousFiber);
 		}
 
 		// If we have an old fiber
@@ -253,18 +277,18 @@ function reconcileChildren(workInProgressFiber: VRFiber, elements: Array<VRFiber
 export function render(fiber: VRFiber, container: VRContainer): void {
 	// Unwrap the container
 	if (container !== null) {
-		workInProgressRoot = {
+		engineState.workInProgressRoot = {
 		// Set nextUnitOfWork to the root of the fiber tree.
 			dom: container,
 			props: {
 				children: [fiber]
 			},
-			alternate: currentRoot
+			alternate: engineState.currentRoot
 		},
-		deletions = [];
+		engineState.deletions = [];
 
 		// We’ll keep track of the root of the fiber tree. 
-		nextUnitOfWork = workInProgressRoot;
+		engineState.nextUnitOfWork = engineState.workInProgressRoot;
 	}
 }
 
@@ -338,7 +362,7 @@ function updateDom(dom: VRContainer, previousProps: VRFiber["props"], nextProps:
  * @param fiber Viridian Element
  * @returns (virtual) DOM Representation
  */
-export function createFiberTree(fiber: VRFiber): VRContainer {
+function createFiberTree(fiber: VRFiber): VRContainer {
 	// Create Fiber Tree
 	// If the element type is `_` we create a text fiber instead of a regular fiber.
 	const dom = fiber.type === VRFiberType.textElement 
@@ -413,18 +437,17 @@ function commitWork(fiber: OptionalVRFiber): void {
  */
 function commitRoot(): void {
 	// Commit deletions
-	deletions?.forEach(commitWork);
+	engineState.deletions?.forEach(commitWork);
 
 	// Commit the Fiber tree
-	commitWork(workInProgressRoot?.child);
+	commitWork(engineState.workInProgressRoot?.child);
 
 	// So we need to save a reference to that “last fiber tree we committed to the DOM”
-	currentRoot = workInProgressRoot;
+	engineState.currentRoot = engineState.workInProgressRoot;
 
 	// Remove WIP DOM
-	workInProgressRoot = null;
+	engineState.workInProgressRoot = null;
 }
-
 
 /**
  * Delete Fiber from DOM Container
