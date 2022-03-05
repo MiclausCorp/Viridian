@@ -25,7 +25,7 @@
 //
 
 /* Include Directive */
-import { ViridianDOM } from "./ViridianDOM";
+import { FiberDOM } from "./FiberDOM";
 
 /**
  * Display a component in the DOM.
@@ -40,14 +40,13 @@ export function init({ selector, type, component }: { selector: string; type?: s
 
 	// Create the component.
 	// If we got a custom type (eg. "h1"), use that. otherwise use a `div`.
-	const element = ViridianDOM.createElement(type || "div", null, component);
+	const element = FiberDOM.createElement(type || "div", null, component);
 
 	// Render the component
-	ViridianDOM.render(element, app);
-
+	FiberDOM.render(element, app);
 }
 
 /* Module Exports */
-exports.createElement = ViridianDOM.createElement;
-exports.render = ViridianDOM.render;
+exports.createElement = FiberDOM.createElement;
+exports.render = FiberDOM.render;
 exports.init = init;

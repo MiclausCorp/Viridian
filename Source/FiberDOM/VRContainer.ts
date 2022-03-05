@@ -1,6 +1,6 @@
 //
-//  ViridianDOM/VRElement.ts
-//  Viridian DOM Element type
+//  FiberDOM/VRContainer.ts
+//  Viridian DOM Container type
 //
 //  Created by Darius Miclaus (mdarius13)
 //
@@ -25,18 +25,6 @@
 //
 
 /**
- * Viridian Element type
+ * Viridian DOM Container type
  */
-export type VRElement = {
-    // Element type
-    type: string;
-
-    // Element Props
-    props: {
-        // HTML DOM node value
-        nodeValue: string;
-
-        // Children elements
-        children: Array<VRElement>;
-    };
-};
+export type VRContainer = HTMLElement | HTMLHeadElement | Text | Element | null;

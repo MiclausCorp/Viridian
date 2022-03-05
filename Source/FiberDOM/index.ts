@@ -1,6 +1,6 @@
 //
-//  Viridian Web Engine/index.ts
-//  Main implementation for the Viridian Templating Processor and Reconciliation Engine.
+//  FiberDOM/index.ts
+//  Index file for the Viridian FiberDOM Reconciliation Engine
 //
 //  Created by Darius Miclaus (mdarius13)
 //
@@ -25,13 +25,13 @@
 //
 
 /* Include Directive */
-import { createElement } from "./Emitter"; // Viridian DOM Element Generator
-import { render } from "./Render";         // Viridian DOM Renderer
+import { createElement } from "./Emitter"; // Viridian Fiber Element Generator
+import { render } from "./Engine";         // Viridian DOM Renderer
 
 /**
- * Viridian DOM Engine
+ * Viridian FiberDOM Reconciliation Engine
  */
-export const ViridianDOM = {
+export const FiberDOM = {
 	createElement,
 	render,
 };

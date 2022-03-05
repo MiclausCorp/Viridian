@@ -1,6 +1,6 @@
 //
-//  ViridianDOM/Emmiter.ts
-//  Viridian DOM Element generator
+//  FiberDOM/Emmiter.ts
+//  Viridian Fiber factory
 //
 //  Created by Darius Miclaus (mdarius13)
 //
@@ -25,17 +25,17 @@
 //
 
 /* Include Directive */
-import { VRElement } from "./VRElement"; // Viridian DOM Element
+import { VRFiber, VRFiberType } from "./VRFiber"; // Viridian Fiber
 
 /**
- * Create and return a new Viridian element of the given type
+ * Create and return a new Viridian Fiber element of the given type
  * @param type a `string` that specifies the type of the DOM node we want to create, it’s the `tagName` you pass to `document.createElement(_)` when you want to create an HTML element.
- * @param props The keys and values from the JSX attributes. It also contains the property: `children`.
+ * @param props The keys and values from the attributes. It also contains the property: `children`.
  * @param children Element Content
- * @returns Viridian element of the given type
+ * @returns Viridian Fiber of the given type
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createElement(type: string, props: any, ...children: Array<string>): VRElement {
+export function createElement(type: string, props: any, ...children: Array<string>): VRFiber {
 	return {
 		type,
 		props: {
@@ -50,15 +50,15 @@ export function createElement(type: string, props: any, ...children: Array<strin
 		},
 	};
 }
+
 /**
  * Wrap primitive values in a text element
- * @param Input object
+ * @param text Input object
  * @returns Viridian Text element
  */
-
-export function createTextElement(text: string): VRElement {
+export function createTextElement(text: string): VRFiber {
 	return {
-		type: "_",
+		type: VRFiberType.textElement,
 		props: {
 			nodeValue: text,
 			children: [],

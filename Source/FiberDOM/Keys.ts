@@ -1,6 +1,6 @@
 //
-//  ViridianDOM/VRContainer.ts
-//  Viridian DOM Container type
+//  FiberDOM/Keys.ts
+//  Viridian FiberDOM filter keys
 //
 //  Created by Darius Miclaus (mdarius13)
 //
@@ -23,8 +23,24 @@
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE 
 //  OR OTHER DEALINGS IN THE SOFTWARE.
 //
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-/**
- * Viridian DOM Container type
- */
-export type VRContainer = HTMLElement | Text | Element | null;
+/* Abstract:
+- Keys help compare the props from the old fiber to the props of the new fiber,
+remove the props that are gone, and set the props that are new or changed. 
+
+- One special kind of prop that we need to update are event listeners. (see `isEvent`). 
+If the prop name starts with the “on” prefix we’ll handle them differently.
+*/
+
+/** `isEvent` FiberDOM event listener */
+export const isEvent = (key: string) => key.startsWith("on");
+
+/** `isProperty` FiberDOM filter key */
+export const isProperty = (key: string) => key !== "children" && !isEvent(key);
+
+/** `isNew` FiberDOM filter key */
+export const isNew = (prev:any, next:any) => (key:any) => prev[key] !== next[key];
+
+/** `isGone` FiberDOM filter key */
+export const isGone = (prev: any, next: any) => (key: any) => !(key in next);
