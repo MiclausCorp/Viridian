@@ -33,38 +33,32 @@ import { VRContainer } from "./VRContainer"; // Viridian DOM Container
 export type VRFiber = {
     // HTML Element type
     // eslint-disable-next-line @typescript-eslint/ban-types
-    type?: string | Function | null | undefined,
+    type?: VRFiberType | Function,
 
     // Fiber Props
-	props: {
-        // Fiber HTML node
-        nodeValue?: string | null | undefined,
-
-        // Fiber Children items
-		children: Array<VRFiber>,
-	},
+	props: object;
 
     // Enclosing Container
-    dom?: VRContainer | null | undefined;
+    dom?: VRContainer;
     
     // Parent Fiber
-    parent?: VRFiber | null | undefined;
+    parent?: VRFiber;
 
     // Sibling Fiber
-    sibling?: VRFiber | null | undefined;
+    sibling?: VRFiber;
 
     // Child Fiber
-    child?: VRFiber | null | undefined;
+    child?: VRFiber;
 
     // Fiber Update Effect tag
     effectTag?: VRFiberEffectTag;
 
     // A link to the old fiber, that was committed to the DOM in the previous commit phase.
-    alternate?: VRFiber | null | undefined;
+    alternate?: VRFiber;
 
     // Interactivity Hooks
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    hooks?: any[]
+    hooks?: Array<any>
 };
 
 /**
@@ -92,3 +86,13 @@ export enum VRFiberEffectTag {
  * Value that can either be a Viridian Fiber, null or undefined. (a.k.a. an Optional value)
  */
 export type OptionalVRFiber = VRFiber | null | undefined;
+
+/**
+ * Provides ability to put a <Fragment> root
+ * node on JSX. Simply returns the children
+ * objects.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function fragment(props: any) {
+	return props.children;
+}
