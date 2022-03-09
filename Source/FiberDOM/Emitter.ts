@@ -35,7 +35,7 @@ import { VRFiber, VRFiberType } from "./VRFiber"; // Viridian Fiber
  * @returns Viridian Fiber of the given type
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createElement(type: any, props: any, ...children: Array<string>): VRFiber {
+export function createElement(type: any, props: VRFiber["props"], ...children: Array<string>): VRFiber {
 	children = toChildArray(children, []);
 	return {
 		type,
