@@ -27,4 +27,4 @@
 /**
  * Viridian DOM Container type
  */
-export type VRContainer = HTMLElement | HTMLHeadElement | Text | Element | null;
+export type VRContainer = HTMLElement | Text;
