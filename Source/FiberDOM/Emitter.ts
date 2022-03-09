@@ -35,7 +35,8 @@ import { VRFiber, VRFiberType } from "./VRFiber"; // Viridian Fiber
  * @returns Viridian Fiber of the given type
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createElement(type: string, props: any, ...children: Array<string>): VRFiber {
+export function createElement(type: any, props: any, ...children: Array<string>): VRFiber {
+	children = toChildArray(children, []);
 	return {
 		type,
 		props: {
@@ -64,4 +65,25 @@ function createTextElement(text: string): VRFiber {
 			children: [],
 		},
 	};
+}
+
+/**
+ * Converts children to an Array.
+ * @param children input
+ * @param out Output array
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function toChildArray(children: any, out: Array<any>) {
+	out = out || [];
+
+	if (children == null || typeof children == "boolean") {
+		return out;
+	} else if (Array.isArray(children)) {
+		children.some(child => {
+			toChildArray(child, out);
+		});
+	} else {
+		out.push(children);
+	}
+	return out;
 }
