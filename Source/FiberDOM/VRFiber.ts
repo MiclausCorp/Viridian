@@ -31,32 +31,33 @@ import { VRContainer } from "./VRContainer"; // Viridian DOM Container
  * Viridian Fiber node type
  */
 export type VRFiber = {
-    // HTML Element type
+    /** Fiber type. Can be a function thanks to Viridian Function Components */
     // eslint-disable-next-line @typescript-eslint/ban-types
     type?: VRFiberType | Function,
 
-    // Fiber Props
-	props: object;
+    /** Fiber Props */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+	props: any;
 
-    // Enclosing Container
+    /** Hosting Container */
     dom?: VRContainer;
     
-    // Parent Fiber
+    /** Parent Fiber */
     parent?: VRFiber;
 
-    // Sibling Fiber
+    /** Sibling Fiber */
     sibling?: VRFiber;
 
-    // Child Fiber
+    /** Child Fiber */
     child?: VRFiber;
 
-    // Fiber Update Effect tag
+    /** Fiber Update Effect tag */
     effectTag?: VRFiberEffectTag;
 
-    // A link to the old fiber, that was committed to the DOM in the previous commit phase.
+    /** A link to the old fiber, that was committed to the DOM in the previous commit phase. */
     alternate?: VRFiber;
 
-    // Interactivity Hooks
+    /** Interactivity Hooks */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     hooks?: Array<any>
 };
@@ -65,6 +66,7 @@ export type VRFiber = {
  * Viridian Fiber Type enumeration
  */
 export enum VRFiberType {
+    /** Text element */
     textElement = "_"
 }
 
