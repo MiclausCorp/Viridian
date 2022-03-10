@@ -1,6 +1,6 @@
 //
-//  Hooks/$reference.ts
-//  $reference Hook implementation
+//  Hooks/$Reference.ts
+//  $Reference Hook implementation
 //
 //  Created by Darius Miclaus (mdarius13)
 //
@@ -25,18 +25,18 @@
 //
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-import { engineState } from "../FiberDOM/Engine";
+import { globalState } from "../FiberDOM/Engine";
 
 /** Hook that allows you to persist values between renders. 
  * 
  * It can be used to store a mutable value that does not cause a re-render when updated. 
  * It can be used to access a DOM element directly. */
-export function $reference<T>(initial: T): { current: T } {
+export function $Reference<T>(initial: T): { current: T } {
 	// Get the old hook
 	const oldHook =
-      engineState.workInProgressFiber?.alternate &&
-      engineState.workInProgressFiber?.alternate.hooks &&
-      engineState.workInProgressFiber?.alternate.hooks[engineState.hookIndex];
+      globalState.workInProgressFiber?.alternate &&
+      globalState.workInProgressFiber?.alternate.hooks &&
+      globalState.workInProgressFiber?.alternate.hooks[globalState.hookIndex];
   
 	// Build the hook
 	const hook = {
@@ -44,10 +44,10 @@ export function $reference<T>(initial: T): { current: T } {
 	};
   
 	// Push the hook to the WIP fiber
-	engineState.workInProgressFiber.hooks.push(hook);
+	globalState.workInProgressFiber.hooks.push(hook);
 
 	// Bump the hook index
-	engineState.hookIndex++;
+	globalState.hookIndex++;
   
 	// And return
 	return hook.value;

@@ -1,6 +1,6 @@
 //
-//  Hooks/$state.ts
-//  $state Hook implementation
+//  Hooks/$State.ts
+//  $State Hook implementation
 //
 //  Created by Darius Miclaus (mdarius13)
 //
@@ -23,52 +23,55 @@
 //  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE 
 //  OR OTHER DEALINGS IN THE SOFTWARE.
 //
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
-import { engineState } from "../FiberDOM/Engine";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+/* Include Directive */
+import { globalState } from "../FiberDOM/Engine"; // FiberDOM Engine
 
 /** Hook that allows you to have state variables in functional components.
 
 You pass the initial state to this function and it returns a variable with the current state value (not necessarily the initial state),
 and another function to update this value. */
-export function $state<T>(initial: T): [T, (action: (prevState: T) => T) => void] {
+export function $State<T>(initial: T): [T, (action: (prevState: T) => T) => void] {
 	/* When the function component calls `useState(_)`, we check if we have an old hook. 
 	We check in the alternate of the fiber using the hook index. */
 	const oldHook =
-    engineState.workInProgressFiber?.alternate &&
-	engineState.workInProgressFiber?.alternate.hooks &&
-    engineState.workInProgressFiber?.alternate.hooks[engineState.hookIndex ? engineState.hookIndex : 0];
+		globalState.workInProgressFiber?.alternate &&
+		globalState.workInProgressFiber?.alternate.hooks &&
+		globalState.workInProgressFiber?.alternate.hooks[globalState.hookIndex];
 	
 	// Current hook
 	const hook = {
 		state: oldHook ? oldHook.state : initial, // Hook State
-		queue: []                                 // Hook Queue
+		queue: []                     		      // Hook Queue
 	};
 
 	// Apply the queued setState actions
 	const actions = oldHook ? oldHook.queue : [];
-	actions.forEach(action => {
+	actions.forEach((action: any) => {
 		hook.state = action(hook.state);
 	});
 
 	// Function that receives an action
-	const setState = action => {
-		hook.queue.push(action);
-		engineState.workInProgressRoot = {
-			dom:  engineState.currentRoot &&  engineState.currentRoot.dom,
-			props:  engineState.currentRoot &&  engineState.currentRoot.props,
-			alternate:  engineState.currentRoot,
+	const setState = (action: any) => {
+		hook.queue.push(action as never);
+		globalState.workInProgressRoot = {
+			dom: globalState.currentRoot.dom,
+			props: globalState.currentRoot.props,
+			alternate:  globalState.currentRoot,
 		};
-		engineState.nextUnitOfWork =  engineState.workInProgressRoot;
-		engineState.deletions = [];
+		globalState.nextUnitOfWork =  globalState.workInProgressRoot;
+		globalState.deletions = [];
 	};
 
 	// Push the hook to the WIP fiber
-	engineState.workInProgressFiber.hooks.push(hook);
+	if (globalState.workInProgressFiber?.hooks) {
+		globalState.workInProgressFiber.hooks.push(hook);
 
-	// Bump the hook index
-	engineState.hookIndex++;
- 
+		// Bump the hook index
+		globalState.hookIndex++;
+	}
+
 	// And return
 	return [hook.state, setState];
 }
