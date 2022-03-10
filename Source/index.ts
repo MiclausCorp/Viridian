@@ -27,6 +27,7 @@
 /* Include Directive */
 import { createElement } from "./FiberDOM/Emitter";  // Viridian FiberDOM Fiber Factory
 import { render }        from "./FiberDOM/Engine";   // Viridian FiberDOM DOM Renderer
+import { $Effect } from "./Hooks/$Effect";
 import { $Reference }    from "./Hooks/$Reference";  // $Reference interactivity hook
 import { $State }        from "./Hooks/$State";      // $State interactivity hook
 
@@ -60,5 +61,11 @@ export {
 
 	You pass the initial state to this function and it returns a variable with the current state value (not necessarily the initial state),
 	and another function to update this value. */
-	$State
+	$State,
+
+	/** Hook that lets your component do something after rendering.
+ 	* 
+ 	* Viridian will store the callback function you passed (the “effect”), 
+ 	* and call it later after performing the DOM updates. */
+	$Effect
 };
