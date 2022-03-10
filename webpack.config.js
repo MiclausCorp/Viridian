@@ -66,7 +66,10 @@ module.exports = {
 		path: path.resolve(__dirname, "Release/dist"),
 
 		// And the master output file will be called `libViridian.js`
-		filename: "libViridian.js"
+		filename: "libViridian.js",
+
+		// Outputs a library exposing entry point.
+		library: "Viridian"
 	},
 
 	// Set webpack to the Production environment.
