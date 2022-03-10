@@ -25,28 +25,40 @@
 //
 
 /* Include Directive */
-import { FiberDOM } from "./FiberDOM";
+import { createElement } from "./FiberDOM/Emitter";  // Viridian FiberDOM Fiber Factory
+import { render }        from "./FiberDOM/Engine";   // Viridian FiberDOM DOM Renderer
+import { $Reference }    from "./Hooks/$Reference";  // $Reference interactivity hook
+import { $State }        from "./Hooks/$State";      // $State interactivity hook
 
 /**
- * Display a component in the DOM.
- * 
- * @param selector The first `Element` within the document that matches the specified selector, which will receive the HTML component (eg. `div`).
- * @param component The Viridian element to give to the `selector` (eg. `'Hello ${user.name}`).
+ * Viridian Frontend Library
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function init({ selector, type, component }: { selector: string; type?: string; component: string; }): void {
-	// Get the object using the document selector
-	const app = document.querySelector(selector);
+export {
+	/**
+ 	* Render a fiber in a DOM container.
+ 	* @param fiber Input Fiber
+ 	* @param container Hosting DOM Container
+ 	*/
+	render,
 
-	// Create the component.
-	// If we got a custom type (eg. "h1"), use that. otherwise use a `div`.
-	const element = FiberDOM.createElement(type || "div", null, component);
+	/**
+ 	* Create and return a new Viridian Fiber element of the given type
+ 	* @param type a `string` that specifies the type of the DOM node we want to create, it’s the `tagName` you pass to `document.createElement(_)` when you want to create an HTML element.
+ 	* @param props The keys and values from the attributes. It also contains the property: `children`.
+ 	* @param children Element Content
+ 	* @returns Viridian Fiber of the given type
+ 	*/
+	createElement,
+	
+	/** Hook that allows you to persist values between renders. 
+	 * 
+	 * It can be used to store a mutable value that does not cause a re-render when updated. 
+	 * It can be used to access a DOM element directly. */
+	$Reference,
+	
+	/** Hook that allows you to have state variables in functional components.
 
-	// Render the component
-	FiberDOM.render(element, app);
-}
-
-/* Module Exports */
-exports.createElement = FiberDOM.createElement;
-exports.render = FiberDOM.render;
-exports.init = init;
+	You pass the initial state to this function and it returns a variable with the current state value (not necessarily the initial state),
+	and another function to update this value. */
+	$State
+};
