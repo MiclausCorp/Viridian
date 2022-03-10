@@ -25,8 +25,8 @@
 //
 
 /* Include Directive */
-import { $reference } from "./$reference"; // $reference Hook
-import { $state } from "./$state";         // $state     Hook
+import { $Reference } from "./$Reference"; // $reference Hook
+import { $State } from "./$State";         // $state     Hook
 
 /**
  * Viridian FiberDOM Hooks
@@ -36,11 +36,11 @@ export const VRHooks = {
 	* 
 	* It can be used to store a mutable value that does not cause a re-render when updated. 
 	* It can be used to access a DOM element directly. */
-	$reference,
+	$Reference: $Reference,
 
 	/** Hook that allows you to have state variables in functional components.
 
 	You pass the initial state to this function and it returns a variable with the current state value (not necessarily the initial state),
 	and another function to update this value. */
-	$state,
+	$State: $State,
 };
