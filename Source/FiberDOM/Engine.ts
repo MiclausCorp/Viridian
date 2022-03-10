@@ -28,51 +28,51 @@
 import { VRContainer } from "./VRContainer";                                         // Viridian DOM Container
 import { isEvent, isGone, isNew, isProperty } from "./Keys";                         // Filter Keys
 import { OptionalVRFiber, VRFiber, VRFiberType, VRFiberEffectTag } from "./VRFiber"; // Viridian FiberDOM VRFiber
-
+import { convertStyleObjectToCssString } from "./Style";                             // Style object to CSS Inline String converter
 
 /**
  * FiberDOM Engine State at runtime
  */
 interface FiberDOMState {
 	/** Upcoming Fiber */
-	nextUnitOfWork: OptionalVRFiber;
+	nextUnitOfWork: VRFiber | null;
 
 	/** Work-in-progress Fiber Tree root */
-	workInProgressRoot: OptionalVRFiber;
+	workInProgressRoot: VRFiber | null;
 
 	/** Work-in-progress */
-	workInProgressFiber: OptionalVRFiber;
+	workInProgressFiber: VRFiber | null;
 
 	/** Current Fiber Tree Root */
-	currentRoot: OptionalVRFiber;
+	currentRoot: VRFiber;
 
 	/** Fibers to be deleted */
-	deletions: VRFiber[] | null;
+	deletions: VRFiber[];
 
 	/** Hook index */
-	hookIndex: number | null;
+	hookIndex: number;
 }
 
-/** FiberDOM Engine Global State */
-export const engineState = {} as FiberDOMState;
+/** FiberDOM Engine Global State singleton */
+export const globalState = {} as FiberDOMState;
 
 /* Implementation */
 // Set Idle Callback on `workLoop(_)`
-requestIdleCallback(workLoop);
+window.requestIdleCallback(workLoop);
 
 /**
  * Main Engine Work Loop
  * @param deadline Rendering Deadline
  */
-function workLoop(deadline: IdleDeadline): void {
+function workLoop(deadline: RequestIdleCallbackDeadline): void {
 	// Should yield work
 	let shouldYield = false;
 
 	// While we have to work on a fiber and we shouldn't yield
-	while (engineState.nextUnitOfWork && !shouldYield) {
+	while (globalState.nextUnitOfWork && !shouldYield) {
 		// Perform the work
-		engineState.nextUnitOfWork = performUnitOfWork(
-			engineState.nextUnitOfWork
+		globalState.nextUnitOfWork = performUnitOfWork(
+			globalState.nextUnitOfWork
 		);
 
 		// Set should yield if Deadline is less than 1
@@ -80,15 +80,15 @@ function workLoop(deadline: IdleDeadline): void {
 	}
 
 	// Once we finish all the work 
-	// (we know it because there isn’t a next unit of work) 
+	// (we'll know it because there isn’t a next unit of work) 
 	// we commit the whole fiber tree to the DOM.
-	if (!engineState.nextUnitOfWork && engineState.workInProgressRoot) {
+	if (!globalState.nextUnitOfWork && globalState.workInProgressRoot) {
 		// Commit the tree root to the DOM
 		commitRoot();
 	}
 
 	// Set Idle Callback on `workLoop(_)`
-	requestIdleCallback(workLoop);
+	window.requestIdleCallback(workLoop);
 }
 
 /**
@@ -96,6 +96,7 @@ function workLoop(deadline: IdleDeadline): void {
  * @param fiber Input Fiber
  * @returns Viridian Fiber
  */
+// @ts-expect-error -  TypeScript does not like that we don't have an outermost return, and can't understand the semantic of the while loop.
 function performUnitOfWork(fiber: VRFiber): VRFiber {
 	/* Abstract:
 	 * One of the goals of the fiber data structure is to make it easy to find the next unit 
@@ -135,13 +136,11 @@ function performUnitOfWork(fiber: VRFiber): VRFiber {
 			// return it
 			return nextFiber.sibling;
 		}
-		// Set it as its parent
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		nextFiber = nextFiber.parent!;
-	}
 
-	// Outermost return
-	return nextFiber;
+		// Otherwise, set it as its parent
+		// @ts-expect-error - We can't run a check here because it'll cause an infinite loop.
+		nextFiber = nextFiber.parent;
+	}
 }
 
 /**
@@ -155,8 +154,7 @@ function updateHostComponent(fiber: VRFiber) {
 	}
 
 	// Then for each child we create a new fiber.
-	const elements = fiber.props.children;
-	reconcileChildren(fiber, elements);
+	reconcileChildren(fiber, fiber.props.children);
 }
 
 /**
@@ -165,16 +163,28 @@ function updateHostComponent(fiber: VRFiber) {
  */
 function updateFunctionComponent(fiber: VRFiber) {
 	// Set global data
-	engineState.workInProgressFiber = fiber;    // Work in progress fiber 
-	engineState.hookIndex = 0;                  // Keep track of the current hook index.
-	engineState.workInProgressFiber.hooks = []; // Fiber attached Hooks
+	globalState.workInProgressFiber = fiber;    // Work in progress fiber 
+	globalState.workInProgressFiber.hooks = []; // Fiber attached Hooks
+	globalState.hookIndex = 0;                  // Keep track of the current hook index.
+
+	// Function components generally return single root node object
+	// The one exception is the Fragment function which returns
+	// an array. We deal with both kinds here
 
 	// Run the function to get the children.
 	// Notice: We're 100% guaranteed to have a function type if we're here.
 	// We'll just disable TS safety here to save the 32 bytes needed for an extra `if` check.
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-ignore
-	const children = [fiber.type(fiber.props)];
+	// eslint-disable-next-line @typescript-eslint/ban-types
+	const results = (fiber.type as Function)(fiber.props);
+	let children = [];
+
+	if (Array.isArray(results)) {
+		// Fragment results returns array
+		children = [...results];
+	} else {
+		// Normal function component returns single root node
+		children = [results];
+	}
 
 	// Then, once we have the children, the reconciliation works in the same way.
 	// We don’t need to change anything there.
@@ -195,12 +205,12 @@ function reconcileChildren(workInProgressFiber: VRFiber, elements: Array<VRFiber
 	let index = 0;
 	let previousFiber = workInProgressFiber.alternate && workInProgressFiber.alternate.child;
 
-	let previousSibling: OptionalVRFiber = null;
+	let previousSibling: VRFiber;
 
 	// Iterate over the children of the old fiber (wipFiber.alternate) and the array of elements we want to reconcile.
-	while (index < elements.length || previousFiber != null) {
+	while (index < elements.length || previousFiber != undefined) {
 		const element = elements[index];
-		let newFiber: OptionalVRFiber = null;
+		let newFiber: VRFiber;
 		
 		// Compare Previous fiber to element
 		const sameType = previousFiber && element && element.type == previousFiber.type;
@@ -210,13 +220,14 @@ function reconcileChildren(workInProgressFiber: VRFiber, elements: Array<VRFiber
 		// we can keep the DOM node and just update it with the new props.
 		if (sameType) {
 			// Update the node by keeping the same dom node and just updating with the new props.
-			newFiber = {                                              // Fiber:
-				type: previousFiber ? previousFiber.type : undefined, // Fiber type
-				props: element.props,                                 // Fiber props
-				dom: previousFiber ? previousFiber.dom : undefined,   // Fiber DOM
-				parent: workInProgressFiber,                          // Fiber Parent
-				alternate: previousFiber,                             // Fiber Previous fiber
-				effectTag: VRFiberEffectTag.update,                   // Fiber Effect Tab
+			newFiber = {                            // Fiber:
+				type: previousFiber?.type,          // Fiber type
+				props: element.props,               // Fiber props
+				dom: previousFiber?.dom,            // Fiber DOM
+				parent: workInProgressFiber,        // Fiber Parent
+				alternate: previousFiber,           // Fiber Previous fiber
+				effectTag: VRFiberEffectTag.update, // Fiber Effect Tab
+				hooks: previousFiber?.hooks         // Fiber Hooks
 			};
 		}
         
@@ -227,10 +238,11 @@ function reconcileChildren(workInProgressFiber: VRFiber, elements: Array<VRFiber
 			newFiber = {                            // Fiber:
 				type: element.type,                 // Fiber type
 				props: element.props,               // Fiber props
-				dom: null,                          // Fiber DOM
+				dom: undefined,                     // Fiber DOM
 				parent: workInProgressFiber,        // Fiber Root
-				alternate: null,                    // Fiber Previous fiber
+				alternate: undefined,               // Fiber Previous fiber
 				effectTag: VRFiberEffectTag.place,  // Fiber Effect tag
+				hooks: previousFiber?.hooks         // Fiber Hooks
 			};
 		}
 
@@ -241,7 +253,7 @@ function reconcileChildren(workInProgressFiber: VRFiber, elements: Array<VRFiber
 			previousFiber.effectTag = VRFiberEffectTag.delete;
 
 			// Push it to deletions.
-			engineState.deletions?.push(previousFiber);
+			globalState.deletions?.push(previousFiber);
 		}
 
 		// If we have an old fiber
@@ -253,15 +265,18 @@ function reconcileChildren(workInProgressFiber: VRFiber, elements: Array<VRFiber
 		// If we're at 0
 		if (index === 0) {
 			// set the new Fiber as the WIP fiber's child
+			// @ts-expect-error -  TypeScript believes `newFiber` isn't assigned. It will be at runtime.
 			workInProgressFiber.child = newFiber;
-		
+			
 		// Otherwise if we have an element and old sibling
-		} else if (element && previousSibling) {
+		} else if (element) {
 			// Set the new fiber as the old sibling's sibling.
+			// @ts-expect-error -  TypeScript believes `newFiber` isn't assigned. It will be at runtime.
 			previousSibling.sibling = newFiber;
 		}
 
 		// Set the previous sibling as the new fiber
+		// @ts-expect-error -  TypeScript believes `newFiber` isn't assigned. It will be at runtime.
 		previousSibling = newFiber;
 		
 		// And bump the count.
@@ -276,19 +291,24 @@ function reconcileChildren(workInProgressFiber: VRFiber, elements: Array<VRFiber
  */
 export function render(fiber: VRFiber, container: VRContainer): void {
 	// Unwrap the container
-	if (container !== null) {
-		engineState.workInProgressRoot = {
-		// Set nextUnitOfWork to the root of the fiber tree.
+	if (container) {
+		globalState.workInProgressRoot = {
+			// Set nextUnitOfWork to the root of the fiber tree.
 			dom: container,
 			props: {
 				children: [fiber]
 			},
-			alternate: engineState.currentRoot
+
+			// This property is a link to the old fiber, the fiber that we commited 
+			// to the dom in the previous commit phase. Used for reconcilation. 
+			alternate: globalState.currentRoot
 		},
-		engineState.deletions = [];
+
+		// Empty the deletions array
+		globalState.deletions = [];
 
 		// We’ll keep track of the root of the fiber tree. 
-		engineState.nextUnitOfWork = engineState.workInProgressRoot;
+		globalState.nextUnitOfWork = globalState.workInProgressRoot;
 	}
 }
 
@@ -329,8 +349,7 @@ function updateDom(dom: VRContainer, previousProps: VRFiber["props"], nextProps:
 		.filter(isProperty)
 		.filter(isGone(previousProps, nextProps))
 		.forEach(name => {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			/* @ts-ignore */
+			// @ts-expect-error TypeScript doesn't like indexing `Array<any>` using `string`.
 			dom[name] = "";
 		});
   
@@ -339,9 +358,14 @@ function updateDom(dom: VRContainer, previousProps: VRFiber["props"], nextProps:
 		.filter(isProperty)
 		.filter(isNew(previousProps, nextProps))
 		.forEach(name => {
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			/* @ts-ignore */
-			dom[name] = nextProps[name];
+			if (name === "style") {
+				// Convert style object to CSS String
+				// @ts-expect-error -  TypeScript doesn't like indexing `any` arrays using strings.
+				dom[name] = convertStyleObjectToCssString(nextProps[name]);
+			} else {
+				// @ts-expect-error -  TypeScript doesn't like indexing `any` arrays using strings.
+				dom[name] = nextProps[name];
+			}
 		});
 
 	// Add event listeners
@@ -349,16 +373,15 @@ function updateDom(dom: VRContainer, previousProps: VRFiber["props"], nextProps:
 		.filter(isEvent)
 		.filter(isNew(previousProps, nextProps))
 		.forEach(name => {
-			const eventType = name.toLowerCase().substring(2);
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			/* @ts-ignore */
+			const eventType = name
+				.toLowerCase()
+				.substring(2);
 			dom.addEventListener(eventType, nextProps[name]);
 		});
-  
 }
 
 /**
- * Create a Fiber Tree from viridian elements
+ * Create a Fiber Tree from Viridian Fibers
  * @param fiber Viridian Element
  * @returns (virtual) DOM Representation
  */
@@ -370,7 +393,9 @@ function createFiberTree(fiber: VRFiber): VRContainer {
 		: document.createElement(fiber.type as unknown as VRFiberType);
 
 	// Assign the element props to the node.
-	updateDom(dom, {children: []}, fiber.props);
+	updateDom(dom, {}, fiber.props);
+
+	// And return.
 	return dom;
 }
 
@@ -389,34 +414,31 @@ function commitWork(fiber: OptionalVRFiber): void {
 	// To find the parent of a DOM node we’ll need to go up the fiber tree until we find a fiber with a DOM node.
 	// Because the Fiber from a function component doesn’t have a DOM node.
 	let domParentFiber = fiber.parent;
-	while (!domParentFiber?.dom) {
+
+	while (domParentFiber && !domParentFiber?.dom) {
 		domParentFiber = domParentFiber?.parent;
 	}
 
 	// We've found the dom parent
-	const domParent = domParentFiber.dom;
+	const domParent: VRContainer | undefined = domParentFiber ? domParentFiber.dom : undefined;
 
 	/* Fiber Effects */
 	// If the fiber has a "PLACE" tag we need to append the DOM node to the node from the parent fiber.
-	if (fiber.effectTag === VRFiberEffectTag.place && fiber.dom != null) {
+	if (fiber.effectTag === VRFiberEffectTag.place && fiber.dom != null && domParent) {
 		// Append the DOM node to the node from the parent fiber.
-		domParent?.appendChild(fiber.dom);
+		domParent.appendChild(fiber.dom);
 
 	// If the fiber has a "DELETE" tag we do the opposite and remove the child.
-	} else if (fiber.effectTag === VRFiberEffectTag.delete && fiber.dom != null) {
-		if (domParent) { 
-			// Remove the fiber
-			// When removing a node we also need to keep going until we find a child with a DOM node.
-			// due to the posibility of Function components.
-			commitDeletion(domParent, fiber); 
-		}
+	} else if (fiber.effectTag === VRFiberEffectTag.delete && domParent) {
+		// Remove the fiber
+		// When removing a node we also need to keep going until we find a child with a DOM node.
+		// due to the posibility of Function components.
+		commitDeletion(domParent, fiber); 
 
 	// If the fiber has a "UPDATE" tag we update the existing DOM node with the props that changed.
-	} else if (fiber.effectTag === VRFiberEffectTag.update && fiber.dom != null) {
-		if (fiber.alternate?.props) {
-			// Update the existing DOM node with the props that changed.
-			updateDom(fiber.dom, fiber.alternate.props, fiber.props);
-		}
+	} else if (fiber.effectTag === VRFiberEffectTag.update && fiber.dom != null && fiber.alternate) {
+		// Update the existing DOM node with the props that changed.
+		updateDom(fiber.dom, fiber.alternate.props, fiber.props);
 	}  
 	
 	// If the fiber has a child
@@ -437,16 +459,19 @@ function commitWork(fiber: OptionalVRFiber): void {
  */
 function commitRoot(): void {
 	// Commit deletions
-	engineState.deletions?.forEach(commitWork);
+	globalState.deletions?.forEach(commitWork);
 
-	// Commit the Fiber tree
-	commitWork(engineState.workInProgressRoot?.child);
+	// If we have a WIP root
+	if (globalState.workInProgressRoot && globalState.workInProgressRoot.child) {
+		// Commit the Fiber tree
+		commitWork(globalState.workInProgressRoot.child);
 
-	// So we need to save a reference to that “last fiber tree we committed to the DOM”
-	engineState.currentRoot = engineState.workInProgressRoot;
+		// Save a reference to that “last fiber tree we committed to the DOM”
+		globalState.currentRoot = globalState.workInProgressRoot;
+	}
 
 	// Remove WIP DOM
-	engineState.workInProgressRoot = null;
+	globalState.workInProgressRoot = null;
 }
 
 /**
@@ -462,7 +487,7 @@ function commitDeletion(container: VRContainer, fiber: VRFiber): void {
 
 	// Otherwise if we have a fiber but it has a child
 	} else if (fiber && fiber.child) {
-		// Recursively delete its child from the hosting container. 
+		// Recursively delete its child from the hosting container.
 		commitDeletion(container, fiber.child);
 	}
 }
