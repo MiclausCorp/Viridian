@@ -24,12 +24,17 @@
 //  OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-/* Include Directive */
+/* Viridian FiberDOM Reconciliation Engine */
 import { createElement } from "./FiberDOM/Emitter";  // Viridian FiberDOM Fiber Factory
 import { render }        from "./FiberDOM/Engine";   // Viridian FiberDOM DOM Renderer
-import { $Effect } from "./Hooks/$Effect";
-import { $Reference }    from "./Hooks/$Reference";  // $Reference interactivity hook
-import { $State }        from "./Hooks/$State";      // $State interactivity hook
+
+/* Viridian FiberDOM Interactivity Hooks */
+import { $Callback }     from "./Hooks/$Callback";   // `$Callback`  interactivity hook
+import { $Effect }       from "./Hooks/$Effect";	 // `$Effect`    interactivity hook
+import { $Memoize }      from "./Hooks/$Memoize";    // `$Memoize`   interactivity hook
+import { $Reference }    from "./Hooks/$Reference";  // `$Reference` interactivity hook
+import { $State }        from "./Hooks/$State";      // `$State`     interactivity hook
+import { isEqual } from "./Utilities/isEqual";
 
 /**
  * Viridian Frontend Library
@@ -58,14 +63,24 @@ export {
 	$Reference,
 	
 	/** Hook that allows you to have state variables in functional components.
-
-	You pass the initial state to this function and it returns a variable with the current state value (not necessarily the initial state),
-	and another function to update this value. */
+     *
+	 * You pass the initial state to this function and it returns a variable with the current state value (not necessarily the initial state),
+	 * and another function to update this value. */
 	$State,
 
 	/** Hook that lets your component do something after rendering.
- 	* 
- 	* Viridian will store the callback function you passed (the “effect”), 
- 	* and call it later after performing the DOM updates. */
-	$Effect
+ 	 * 
+ 	 * Viridian will store the callback function you passed (the “effect”), 
+ 	 * and call it later after performing the DOM updates. */
+	$Effect,
+
+	/** Hook that returns a memoized value.
+ 	 * 
+	 * `$Memoize` caches return values so that they do not need to be recalculated. */
+	$Memoize,
+
+	/** Hook that returns a memoized callback function.
+	 * 
+	 * This will return a memoized version of the callback that only changes if one its dependencies have changed. */
+	$Callback,
 };
