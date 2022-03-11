@@ -52,3 +52,47 @@ function MyComponent() {
   };
 }
 ```
+
+## $Effect
+`$Effect` is an Interactivity Hook that lets your component do something after rendering.
+
+**Viridian FiberDOM** will store the callback function you passed (the “effect”), and call it later after performing the DOM updates.
+
+**Example**
+```js
+function MyComponent() {
+  const effect = Viridian.$Effect(() => {
+    const foo = props.doSomething();
+
+    return () => {
+      foo.bar();
+    };
+  });
+}
+```
+
+## $Memoize
+`$Memoize` is an Interactivity Hook that returns a memoized value.
+
+It caches return values so that they do not need to be recalculated.
+**Example**
+```js
+function MyComponent() {
+  // Compute expensive value
+  const memoizedValue = Viridian.$Memoize(() => computeExpensiveValue(a, b), [a, b]);
+}
+```
+
+## $Callback
+`$Callback` is an Interactivity Hook that returns a memoized callback function.
+
+This will return a memoized version of the callback that only changes if one its dependencies have changed.
+
+**Example**
+```js
+function MyComponent() {
+  const memoizedCallback = Viridian.$Callback(() => {
+    doSomething(a, b);
+  }, [a, b]);
+}
+```
