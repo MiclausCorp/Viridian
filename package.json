@@ -1,7 +1,7 @@
 {
-  "name": "viridian",
+  "name": "@miclauscorp/viridian",
   "version": "1.0.0",
-  "description": "A multipurpose library to aid web JS/TS development",
+  "description": "A lightweight component-based framework for building web interfaces.",
   "main": "Release/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
