@@ -2,6 +2,9 @@
 <p align="center">
     <img src="Assets/Banner/Banner-web.png" alt="Viridian Logo"/>
 </p>
+
+[![CodeQL](https://github.com/MiclausCorp/Viridian/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/MiclausCorp/Viridian/actions/workflows/codeql-analysis.yml)
+
 A lightweight component-based framework for building web interfaces.
 
 ## Usage
