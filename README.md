@@ -77,7 +77,7 @@ Interactivity Hooks are used to maintain state, and build in effects and lifecyc
 - `$Memoize` - which returns a memoized value.
 - `$Callback` - which returns a memoized callback function.
 
-For usage information about **Viridian FiberDOM Interactivity Hooks**, visit their [README.md](Source/FiberDOM/README.md) document.
+For usage information about **Viridian FiberDOM Interactivity Hooks**, visit their [README.md](Source/Hooks/README.md) document.
 
 ## License
 [MIT License](LICENSE)
