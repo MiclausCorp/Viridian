@@ -41,15 +41,27 @@ module.exports = {
 	module: {
 		// Module Rules
 		rules: [
+			// TypeScript Rule
 			{
 				// Test
-				test: /\.tsx?$/,
+				test: /\.ts(x)?$/,
 				
 				// Use TS-Loader
 				use: "ts-loader",
 				
 				// Exclude `node_modules`
 				exclude: /node_modules/,
+			},
+			// Babel Rule
+			{
+				// Test
+				test: /\.js(x)?$/,
+
+				// Use Babel loader
+				use: "babel-loader",
+
+				// Exclude `node_modules`
+				exclude: /node_modules/
 			},
 		],
 	},
