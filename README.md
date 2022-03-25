@@ -121,5 +121,8 @@ Viridian.render(element, container);
 
 For more information about **JSX** and **Interactive HTML**, visit the [React.js JSX  documentation](https://reactjs.org/docs/introducing-jsx.html).
 
+## Frequently Asked Questions (FAQ)
+If you have any questions about what and/or how a framework for building web interfaces works *(eg. "What is a Virtual DOM?")*, visit the [Frequently Asked Questions](FAQ.md) document.
+
 ## License
 [MIT License](LICENSE)
