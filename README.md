@@ -82,5 +82,44 @@ Interactivity Hooks are used to maintain state, and build in effects and lifecyc
 
 For usage information about **Viridian FiberDOM Interactivity Hooks**, visit their [README.md](Source/Hooks/README.md) document.
 
+
+## Interactive HTML (JSX)
+Interactive HTML *(a.k.a JSX)* is an XML-like syntax extension to ECMAScript without any defined semantics. It's intended to be used by various preprocessors (transpilers) to transform these tokens into standard ECMAScript.
+
+Viridian supports JSX thanks to the [Babel Transcompiler](https://babeljs.io/)
+
+You can enable **Interactive HTML** / **JSX** support in your scripts by adding this line of code to the top of your script:
+```js
+/** @jsx Viridian.createElement */
+```
+
+#### Interactive HTML / JSX Demo
+```html
+<!-- Viridian Active View -->
+<div id="app"></div>
+
+<!-- Viridian Import -->
+<script src="./dist/libViridian.js"></script>
+
+<!-- Babel Transcompiler Drop-in -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.18.1/babel.min.js"></script>
+
+<!-- Viridian Interactive Applet -->
+<script defer type="text/babel">
+/** @jsx Viridian.createElement */
+
+// Get the app container
+const container = document.querySelector("#app");
+  
+// Create an element that returns the current date
+var element = <h1>Hello, world!</h1>;
+  
+// Render it in the app container.
+Viridian.render(element, container);
+</script>
+```
+
+For more information about **JSX** and **Interactive HTML**, visit the [React.js JSX  documentation](https://reactjs.org/docs/introducing-jsx.html).
+
 ## License
 [MIT License](LICENSE)
