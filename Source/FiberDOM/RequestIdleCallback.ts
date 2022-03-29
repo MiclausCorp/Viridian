@@ -44,7 +44,7 @@ interface RequestIdleCallbackOptions {
 /**
  * Request Idle Callback Deadline interface
  */
-interface RequestIdleCallbackDeadline {
+export interface RequestIdleCallbackDeadline {
     /** Did timeout*/
     readonly didTimeout: boolean;
 

@@ -28,7 +28,8 @@
 import { VRContainer } from "./VRContainer";                                         // Viridian DOM Container
 import { isEvent, isGone, isNew, isProperty } from "./Keys";                         // Filter Keys
 import { OptionalVRFiber, VRFiber, VRFiberType, VRFiberEffectTag } from "./VRFiber"; // Viridian FiberDOM VRFiber
-import { convertStyleObjectToCssString } from "./Style";                             // Style object to CSS Inline String converter
+import { convertStyleObjectToCssString } from "./Style";                             // Style object to CSS Inline String convertStyleObjectToCssString
+import { RequestIdleCallbackDeadline } from "./RequestIdleCallback";                 // Request Idle Callback Deadline
 
 /**
  * FiberDOM Engine State at runtime
