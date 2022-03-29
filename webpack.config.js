@@ -26,6 +26,7 @@
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
+const gzip = require("compression-webpack-plugin");
 
 // Main Webpack configuration
 module.exports = {
@@ -65,6 +66,12 @@ module.exports = {
 			},
 		],
 	},
+
+	// Viridian Webpack Plugins
+	plugins: [
+		// Gzip Plugin
+		new gzip()
+	],
 
 	// File Resolver
 	resolve: {
